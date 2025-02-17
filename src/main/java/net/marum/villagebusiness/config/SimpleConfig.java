@@ -23,8 +23,6 @@ package net.marum.villagebusiness.config;
  */
 
  import net.fabricmc.loader.api.FabricLoader;
-import net.marum.villagebusiness.VillageBusiness;
-import net.minecraft.client.MinecraftClient;
 
 import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
@@ -39,9 +37,6 @@ import org.apache.logging.log4j.LogManager;
 import java.util.Set;
  
  public class SimpleConfig {
- 
-    private static final String CONFIG_NAME = "my_mod_config.json"; // name of the config file
-    private static final Path CONFIG_PATH = MinecraftClient.getInstance().runDirectory.toPath().resolve("config").resolve(CONFIG_NAME);
 
      private static final Logger LOGGER = LogManager.getLogger("SimpleConfig");
      private final HashMap<String, String> config = new HashMap<>();

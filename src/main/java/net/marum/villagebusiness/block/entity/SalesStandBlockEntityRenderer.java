@@ -2,8 +2,6 @@ package net.marum.villagebusiness.block.entity;
 
 import org.joml.Quaternionf;
 
-import net.marum.villagebusiness.VillageBusiness;
-import net.marum.villagebusiness.pricing.ItemPrice;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;

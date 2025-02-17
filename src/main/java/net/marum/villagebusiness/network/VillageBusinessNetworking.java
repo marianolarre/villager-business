@@ -1,4 +1,5 @@
 package net.marum.villagebusiness.network;
+
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.marum.villagebusiness.VillageBusiness;
 import net.marum.villagebusiness.block.entity.RequestStandBlockEntity;

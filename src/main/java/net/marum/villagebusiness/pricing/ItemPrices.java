@@ -1,38 +1,24 @@
 package net.marum.villagebusiness.pricing;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.marum.villagebusiness.VillageBusiness;
-import net.marum.villagebusiness.config.SimpleConfig;
-import net.marum.villagebusiness.init.VillagerBusinessItemInit;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.Clipboard;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 
-import com.google.common.collect.Maps;
+import static net.marum.villagebusiness.VillageBusiness.SERVER;
 
 public class ItemPrices {
   public static Map<Item, ItemPrice> priceList = createPriceList();
@@ -504,9 +490,8 @@ public class ItemPrices {
   }
 
   private static void getAllRecipes(Map<Item, ItemPrice> map) {
-    MinecraftServer server = MinecraftClient.getInstance().getServer();
-    DynamicRegistryManager registryManager = server.getRegistryManager();
-    if (server == null) return;
+    if (SERVER == null) return;
+    DynamicRegistryManager registryManager = SERVER.getRegistryManager();
 
     List<String> itemsWithoutPrice = new ArrayList<String>();
     for (Identifier id : Registries.ITEM.getIds()) {
@@ -522,7 +507,7 @@ public class ItemPrices {
       }
     }
 
-    RecipeManager recipeManager = server.getRecipeManager();
+    RecipeManager recipeManager = SERVER.getRecipeManager();
     
     boolean stillNeedRecipes = true;
     int safety = 0;

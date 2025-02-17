@@ -17,7 +17,6 @@ import net.marum.villagebusiness.network.VillageBusinessNetworking;
 import net.marum.villagebusiness.pricing.ItemPrice;
 import net.marum.villagebusiness.pricing.ItemPrices;
 import net.marum.villagebusiness.screen.SalesStandScreenHandler;
-import net.marum.villagebusiness.util.TickableBlockEntity;
 import net.marum.villagebusiness.util.VillagerLure;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -49,8 +48,9 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
-public class SalesStandBlockEntity extends BlockEntity implements TickableBlockEntity, ExtendedScreenHandlerFactory, ImplementedInventory, SidedStorageBlockEntity {
+public class SalesStandBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, SidedStorageBlockEntity {
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(4, ItemStack.EMPTY);
     private static final int INPUT_SLOT = 3;
     private static final int OUTPUT_SLOT_NUGGETS = 2;
@@ -111,79 +111,78 @@ public class SalesStandBlockEntity extends BlockEntity implements TickableBlockE
         updateListeners();
     }
 
-    @Override
-    public void tick() {
-        if (this.world == null || this.world.isClient())
+    public static void tick(World world, BlockPos pos, BlockState state, SalesStandBlockEntity entity) {
+        if (entity.world == null || entity.world.isClient())
             return;
         
-        if (this.ticks == 0) {
-            updatePrices();
-            markDirty();
+        if (entity.ticks == 0) {
+            entity.updatePrices();
+            entity.markDirty();
         }
 
         // Lure villagers every 5 seconds
-        if (this.ticks % 100 == 0) {
-            if (canSell()) {
-                this.attractVillager();
+        if (entity.ticks % 100 == 0) {
+            if (entity.canSell()) {
+                entity.attractVillager();
             }
         }
 
         // Move lured villagers every 0.5 second
-        if (this.ticks % 10 == 0){
-            luringVillagers.forEach(lure -> {
+        if (entity.ticks % 10 == 0){
+            entity.luringVillagers.forEach(lure -> {
                 if (lure.hasExpired()) {
-                    getFrustrated(lure.villager);
-                    markedForRemovalVillagers.add(lure);
+                    entity.getFrustrated(lure.villager);
+                    entity.markedForRemovalVillagers.add(lure);
                 } else {
-                    if (villagerIsBusy(lure.villager)) {
-                        markedForRemovalVillagers.add(lure);
+                    if (entity.villagerIsBusy(lure.villager)) {
+                        entity.markedForRemovalVillagers.add(lure);
                     } else {
-                        moveVillagerTowardBlock(lure.villager);
+                        entity.moveVillagerTowardBlock(lure.villager);
                         if (lure.villager.getBlockPos().isWithinDistance(pos, 3)) {
-                            evaluateSale(lure.villager);
-                            markedForRemovalVillagers.add(lure);
+                            entity.evaluateSale(lure.villager);
+                            entity.markedForRemovalVillagers.add(lure);
                         }
                     }
                 }
             });
-            markedForRemovalVillagers.forEach(lure -> {
-                luringVillagers.remove(lure);
+            entity.markedForRemovalVillagers.forEach(lure -> {
+                entity.luringVillagers.remove(lure);
             });
-            markedForRemovalVillagers.clear();
+            entity.markedForRemovalVillagers.clear();
             
             boolean inventoryChanged = false;
-            if (getStack(INPUT_SLOT).getCount() != lastUpdatedInputCount) {
-                lastUpdatedInputCount = getStack(INPUT_SLOT).getCount();
+            if (entity.getStack(INPUT_SLOT).getCount() != entity.lastUpdatedInputCount) {
+                entity.lastUpdatedInputCount = entity.getStack(INPUT_SLOT).getCount();
                 inventoryChanged = true;
             }
-            if (Item.getRawId(getStack(INPUT_SLOT).getItem()) != lastUpdatedInputRawId) {
-                lastUpdatedInputRawId = Item.getRawId(getStack(INPUT_SLOT).getItem());
+            if (Item.getRawId(entity.getStack(INPUT_SLOT).getItem()) != entity.lastUpdatedInputRawId) {
+                entity.lastUpdatedInputRawId = Item.getRawId(entity.getStack(INPUT_SLOT).getItem());
                 inventoryChanged = true;
             }
-            if (getStack(OUTPUT_SLOT_NUGGETS).getCount() != lastUpdatedBlockCount ||
-            getStack(OUTPUT_SLOT_EMERALDS).getCount() != lastUpdatedEmeraldCount ||
-            getStack(OUTPUT_SLOT_BLOCKS).getCount() != lastUpdatedNuggetCount) {
+            if (entity.getStack(OUTPUT_SLOT_NUGGETS).getCount() != entity.lastUpdatedBlockCount ||
+            entity.getStack(OUTPUT_SLOT_EMERALDS).getCount() != entity.lastUpdatedEmeraldCount ||
+            entity.getStack(OUTPUT_SLOT_BLOCKS).getCount() != entity.lastUpdatedNuggetCount) {
                 inventoryChanged = true;
-                lastUpdatedNuggetCount = getStack(OUTPUT_SLOT_NUGGETS).getCount();
-                lastUpdatedEmeraldCount = getStack(OUTPUT_SLOT_EMERALDS).getCount();
-                lastUpdatedBlockCount = getStack(OUTPUT_SLOT_BLOCKS).getCount();
+                entity.lastUpdatedNuggetCount = entity.getStack(OUTPUT_SLOT_NUGGETS).getCount();
+                entity.lastUpdatedEmeraldCount = entity.getStack(OUTPUT_SLOT_EMERALDS).getCount();
+                entity.lastUpdatedBlockCount = entity.getStack(OUTPUT_SLOT_BLOCKS).getCount();
             }
             if (inventoryChanged) {
-                updatePrices();
-                updateListeners();
+                entity.updatePrices();
+                entity.updateListeners();
             }
         }
 
         // Find nearby villagers every 20 seconds
-        if (ticks >= 400) {
-            foundVillagers = world.getEntitiesByClass(VillagerEntity.class, 
+        if (entity.ticks >= 400) {
+            entity.foundVillagers = world.getEntitiesByClass(VillagerEntity.class,
             new Box(pos.add(-RADIUS, -RADIUS, -RADIUS), pos.add(RADIUS, RADIUS, RADIUS)), 
             villager -> true);
             //VillageBusiness.LOGGER.info("Found "+foundVillagers.size()+" villagers");
-            ticks = world.random.nextBetween(-10, 10);
+            entity.ticks = world.random.nextBetween(-10, 10);
         }
 
-        this.ticks++;
+        entity.ticks++;
     }
 
     private boolean villagerIsBusy(VillagerEntity villager) {

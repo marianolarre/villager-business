@@ -1,6 +1,5 @@
 package net.marum.villagebusiness.screen;
 
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.marum.villagebusiness.block.entity.RequestStandBlockEntity;
 import net.marum.villagebusiness.init.VillagerBusinessItemInit;
 import net.marum.villagebusiness.util.NonEmeraldSlot;
@@ -14,8 +13,6 @@ import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 public class RequestStandScreenHandler extends ScreenHandler{
     private final Inventory inventory;
